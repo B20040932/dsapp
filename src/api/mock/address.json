@@ -1,0 +1,20 @@
+[
+    {
+        "name":"小丁子",
+        "address":"文苑路9号",
+        "phone":"1234567",
+        "default":true
+    },
+    {
+        "name":"小钉子",
+        "address":"南京邮电大学",
+        "phone":"12345676",
+        "default":false
+    },
+    {
+        "name":"小丁崽子",
+        "address":"南京邮电大学文苑路9号",
+        "phone":"12345678",
+        "default":false
+    }
+]

@@ -2,6 +2,7 @@ import axios from 'axios'
 //引入进度条
 import nProgress from 'nprogress';
 import "nprogress/nprogress.css"
+import store from '@/store'
 
 const http = axios.create({
     baseURL:' http://gmall-h5-api.atguigu.cn/api',
@@ -11,6 +12,14 @@ const http = axios.create({
 // 添加请求拦截器
 http.interceptors.request.use((config)=>{
     // 在发送请求之前做些什么
+    //游客状态
+    if(store.state.detail.uuid_token){
+      config.headers.userTempId = store.state.detail.uuid_token
+    }
+    //添加token
+    if(store.state.user.token){
+      config.headers.token = store.state.user.token
+    }
     nProgress.start();
     return config;
   }, function (error) {

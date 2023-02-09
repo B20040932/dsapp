@@ -4,20 +4,21 @@
         <div class="top">
         <div class="container">
             <div class="loginList">
-                <p>尚品汇欢迎您！</p>
-                <p>
+                <p>京东欢迎您！</p>
+                <p v-if="!userInfo.name">
                     <span>请 </span>
                     <router-link to="/login">登录</router-link>
                     <router-link to="/register" class="register">免费注册</router-link>
                 </p>
+                <p v-else>
+                  <a>{{ userInfo.name }}</a>
+                  <a class="register" @click="logout">退出登录</a>
+                </p>
             </div>
             <div class="typeList">
-            <a href="###">我的订单</a>
-            <a href="###">我的购物车</a>
-            <a href="###">我的尚品汇</a>
-            <a href="###">尚品汇会员</a>
+            <router-link to="/center">我的订单</router-link>
+            <router-link to="/shopcart">我的购物车</router-link>
             <a href="###">企业采购</a>
-            <a href="###">关注尚品汇</a>
             <a href="###">合作招商</a>
             <a href="###">商家后台</a>
             </div>
@@ -26,7 +27,7 @@
         <!--头部第二行 搜索区域-->
         <div class="bottom">
         <h1 class="logoArea">
-            <router-link class="logo" title="尚品汇" to="/home">
+            <router-link class="logo" title="京东" to="/home">
             <img src="./image/logo.png" alt />
             </router-link>
         </h1>
@@ -41,6 +42,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
     name: 'Search',
     data () {
@@ -65,7 +67,18 @@ export default {
             }else{
                 alert('请输入')
             }
+        },
+        async logout(){
+          try{
+            await this.$store.dispatch('user/userLogout')
+            this.$router.push('/home')
+          }catch(error){
+            console.log(error.message)
+          }
         }
+    },
+    computed:{
+      ...mapState('user',['userInfo'])
     },
     mounted(){
       this.$bus.$on("clear",()=>{

@@ -41,6 +41,11 @@ export default {
   mounted(){
     this.$store.dispatch('home/bannerList')
     this.$store.dispatch('home/floorList')
+    try{
+      this.$store.dispatch('user/getUserInfo')
+    }catch(error){
+      console.log(error.message)
+    }
   }
 }
 </script>

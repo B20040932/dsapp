@@ -7,24 +7,23 @@
     <section class="con">
       <!-- 导航路径区域 -->
       <div class="conPoin">
-        <span>手机、数码、通讯</span>
-        <span>手机</span>
-        <span>Apple苹果</span>
-        <span>iphone 6S系类</span>
+        <span v-show="categoryView.category1Id">{{categoryView.category1Name}}</span>
+        <span v-show="categoryView.category2Id">{{categoryView.category2Name}}</span>
+        <span v-show="categoryView.category3Id">{{categoryView.category3Name}}</span>
       </div>
       <!-- 主要内容区域 -->
       <div class="mainCon">
         <!-- 左侧放大镜区域 -->
         <div class="previewWrap">
           <!--放大镜效果-->
-          <Zoom />
+          <Zoom :skuImageList="skuImageList" />
           <!-- 小图列表 -->
-          <ImageList />
+          <ImageList :skuImageList="skuImageList" />
         </div>
         <!-- 右侧选择区域布局 -->
         <div class="InfoWrap">
           <div class="goodsDetail">
-            <h3 class="InfoName">Apple iPhone 6s（A1700）64G玫瑰金色 移动通信电信4G手机</h3>
+            <h3 class="InfoName">{{ this.skuInfo.skuName }}</h3>
             <p class="news">推荐选择下方[移动优惠购],手机套餐齐搞定,不用换号,每月还有花费返</p>
             <div class="priceArea">
               <div class="priceArea1">
@@ -64,39 +63,19 @@
           <div class="choose">
             <div class="chooseArea">
               <div class="choosed"></div>
-              <dl>
-                <dt class="title">选择颜色</dt>
-                <dd changepirce="0" class="active">金色</dd>
-                <dd changepirce="40">银色</dd>
-                <dd changepirce="90">黑色</dd>
-              </dl>
-              <dl>
-                <dt class="title">内存容量</dt>
-                <dd changepirce="0" class="active">16G</dd>
-                <dd changepirce="300">64G</dd>
-                <dd changepirce="900">128G</dd>
-                <dd changepirce="1300">256G</dd>
-              </dl>
-              <dl>
-                <dt class="title">选择版本</dt>
-                <dd changepirce="0" class="active">公开版</dd>
-                <dd changepirce="-1000">移动版</dd>
-              </dl>
-              <dl>
-                <dt class="title">购买方式</dt>
-                <dd changepirce="0" class="active">官方标配</dd>
-                <dd changepirce="-240">优惠移动版</dd>
-                <dd changepirce="-390">电信优惠版</dd>
+              <dl v-for="(saleAttr,index) in spuSaleAttrList" :key="index">
+                <dt class="title">{{saleAttr.saleAttrName}}</dt>
+                <dd changepirce="0" @click="changeChecked(saleAttr.spuSaleAttrValueList,item)" :class="{active:item.isChecked==1}" v-for="(item,index) in saleAttr.spuSaleAttrValueList" :key="index">{{item.spuAttrValueName}}</dd>
               </dl>
             </div>
             <div class="cartWrap">
               <div class="controls">
-                <input autocomplete="off" class="itxt">
-                <a href="javascript:" class="plus">+</a>
-                <a href="javascript:" class="mins">-</a>
+                <input autocomplete="off" class="itxt" disabled="true" v-model="skuNum" />
+                <a href="javascript:" @click="skuNum++" class="plus">+</a>
+                <a href="javascript:" @click="skuNum<=0?skuNum=0:skuNum--" class="mins">-</a>
               </div>
               <div class="add">
-                <a href="javascript:">加入购物车</a>
+                <a href="javascript:" @click="addShopCar">加入购物车</a>
               </div>
             </div>
           </div>
@@ -350,14 +329,62 @@
   import Typenav from '@/components/Typenav'
   import ImageList from './ImageList/ImageList'
   import Zoom from './Zoom/Zoom'
-
+  import { mapGetters } from 'vuex'
+  import {reqSpuSaleAttrList} from '@/api'
   export default {
     name: 'Detail',
-    
     components: {
       ImageList,
       Typenav,
       Zoom
+    },
+    data(){
+      return {
+        spuSaleAttrList:[],
+        skuNum:1,
+      }
+    },
+
+    computed:{
+      ...mapGetters('detail',['categoryView','skuInfo']),
+      skuImageList(){
+        if(!this.skuInfo.skuImageList || this.skuInfo.skuImageList.length==0)return undefined
+        return this.skuInfo.skuImageList
+      }
+    },
+    methods:{
+      changeChecked(arr,self){
+        arr.forEach(item=>{
+          item.isChecked=0
+        })
+        self.isChecked=1
+      },
+      async addShopCar(){
+        try{
+          await this.$store.dispatch('detail/addShopCart',{
+            skuId:this.$route.params.goodId,
+            skuNum:this.skuNum
+          })
+          let attrList = []
+          this.spuSaleAttrList.forEach(attr=>{
+            attr.spuSaleAttrValueList.forEach(item=>{
+              if(item.isChecked == 1){
+                attrList.push(item.spuAttrValueName)
+              }
+            })
+          })
+          sessionStorage.setItem('SKUINFO',JSON.stringify(this.skuInfo))
+          this.$router.push({name:'addcartsuccess',query:{skuNum:this.skuNum,attr:attrList}})
+        }catch(error){
+          alert(error.message)
+        }
+      }
+    }, 
+    mounted(){
+      this.$store.dispatch('detail/reqGood',this.$route.params.goodId)
+      reqSpuSaleAttrList().then(({data})=>{
+        this.spuSaleAttrList = data.data || []
+      })
     }
   }
 </script>
@@ -578,6 +605,10 @@
                   height: 36px;
                   line-height: 36px;
                   display: block;
+                  text-decoration: none;
+                }
+                a:hover{
+                  color: #fff !important;
                 }
               }
             }

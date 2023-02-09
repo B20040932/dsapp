@@ -1,45 +1,103 @@
-import Home from '@/views/Home'
-import Search from '@/views/Search'
-import Login from '@/views/Login'
-import Register from '@/views/Register'
-import Detail from '@/views/Detail'
 
 export default [
     {
       path:'',
       redirect:'/home',
-      component:Home,
+      component:()=>import('@/views/Home'),
       meta:{show:true}
     },
     {
       path:'/home',
       name:'home',
-      component:Home,
+      component:()=>import('@/views/Home'),
       meta:{show:true}
     },
     {
       path:'/search/:keyword?',
       name:'search',
-      component:Search,
+      component:()=>import('@/views/Search'),
       meta:{show:true}
     },
     {
       path:'/login',
       name:'login',
-      component:Login,
+      component:()=>import('@/views/Login'),
       meta:{show:false}
   
     },
     {
       path:'/register',
       name:'register',
-      component:Register,
+      component:()=>import('@/views/Register'),
       meta:{show:false}
     },
     {
       path:'/detail/:goodId',
       name:'detail',
-      component:Detail,
+      component:()=>import('@/views/Detail'),
+      meta:{show:true}
+    },
+    {
+      path:'/addcartsuccess',
+      name:'addcartsuccess',
+      component:()=>import('@/views/AddCartSuccess'),
+      meta:{show:true}
+    },
+    {
+      path:'/shopcart',
+      name:'shopcart',
+      component:()=>import('@/views/ShopCart'),
+      meta:{show:true}
+    },
+    {
+      path:'/trade',
+      name:'trade',
+      component:()=>import('@/views/Trade'),
+      beforeEnter: (to, from, next) => {
+        if(from.path=='/shopcart'){
+          next()
+        }else{
+          next(false)
+        }
+      },
+      meta:{show:true}
+    },
+    {
+      path:'/pay',
+      name:'pay',
+      component:()=>import('@/views/Pay'),
+      beforeEnter: (to, from, next) => {
+        if(from.path=='/trade'){
+          next()
+        }else{
+          next(false)
+        }
+      },
+      meta:{show:true}
+    },
+    {
+      path:'/paysuccess',
+      name:'paysuccess',
+      component:()=>import('@/views/PaySuccess'),
+      meta:{show:true}
+    },
+    {
+      path:'/center',
+      redirect:'/center/myorder',
+      name:'center',
+      component:()=>import('@/views/Center'),
+      children:[
+        {
+          path:'myorder',
+          name:'myorder',
+          component:()=>import('@/views/Center/myOrder')
+        },
+        {
+          path:'grouporder',
+          name:'grouporder',
+          component:()=>import('@/views/Center/groupOrder')
+        }
+      ],
       meta:{show:true}
     },
   ]
